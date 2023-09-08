@@ -65,7 +65,13 @@ app.get("/api/isValid/:fileId", (req, res) => {
 app.get("/api/access/:fileId", (req, res) => {
     console.log("file requested: " + req.params.fileId);
 
-    res.sendFile("files/" + req.params.fileId, { root: "runtime" });
+    db.get(`SELECT filename FROM files WHERE id = ?`, [req.params.fileId], (err, row) => {
+      if (row) {
+        res.sendFile("files/" + req.params.fileId, { root: "runtime", headers: {'content-disposition': `attachment; filename=${row}`} });
+      } else {
+        res.status(404).send();
+      }
+    });
 })
 
 app.get("/api/filename/:fileId", (req, res) => {
